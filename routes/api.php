@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostalCodeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ZipCodeController;
@@ -15,7 +16,7 @@ use App\Http\Controllers\ZipCodeController;
 |
 */
 
-Route::get('/zip-code/{code}', [ZipCodeController::class, 'search']);
+Route::get('/search', [PostalCodeController::class, 'search']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
