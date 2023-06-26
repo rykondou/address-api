@@ -10,10 +10,34 @@ class PostalCodeController extends Controller
     public function search(Request $request)
     {
         //リクエストからpostalCodeというkeyでvalueを受け取る
-        $code = $request->postalCode;
+        $code = str_replace("-", "", $request->postalcode);
+        //$postalCodeが空の場合
+        if (0 === mb_strlen($code)) {
+            return response()->json(
+                [
+                    'message' => '郵便番号が空です',
+                    'result' => null,
+                    'status' => 400
+                ],
+                400,
+                options: JSON_UNESCAPED_UNICODE
+            );
+        }
+        //0~9の7桁の数値以外が送られた場合
+        if (!preg_match('/[0-9]{7}/', $code)) {
+            return response()->json(
+                [
+                    'message' => '郵便番号が不正です',
+                    'result' => null,
+                    'status' => 400
+                ],
+                400,
+                options: JSON_UNESCAPED_UNICODE
+            );
+        }
         //DB接続用try-catch
         try {
-            $addresses = AddressData::where('postalCode', $code)->get();
+            $addresses = AddressData::where('postalcode', $code)->get();
         } catch (\Exception) {
             return response()->json(
                 [
@@ -25,8 +49,8 @@ class PostalCodeController extends Controller
                 options: JSON_UNESCAPED_UNICODE
             );
         }
-        //一致するレコードがからの場合return
-        if (empty($addresses)) {
+        //一致するレコードがない場合return
+        if ($addresses->isEmpty()) {
             return response()->json(
                 [
                     'message' => '指定した郵便番号の住所が見つかりませんでした',
@@ -47,8 +71,8 @@ class PostalCodeController extends Controller
                 'kana1' => $value->kana1,
                 'kana2' => $value->kana2,
                 'kana3' => $value->kana3,
-                'prefCode' => $value->prefCode,
-                'postalCode' => $value->postalCode,
+                'prefcode' => $value->prefCode,
+                'postalcode' => $value->postalCode,
             ];
             $result[$key] = $address;
         };
