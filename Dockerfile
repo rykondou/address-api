@@ -1,5 +1,5 @@
 # ベースイメージを指定
-FROM php:8.0-fpm
+FROM php:8.1-fpm
 
 # コンテナ内の作業ディレクトリを指定
 WORKDIR /app
