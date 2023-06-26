@@ -27,8 +27,7 @@ COPY . .
 
 # キャッシュのクリアとアプリケーションキーの生成
 RUN composer dump-autoload --no-scripts --optimize && \
-    php artisan optimize && \
-    php artisan key:generate
+    php artisan optimize
 
 # ポートのエクスポートは不要です（Renderが自動的に設定します）
 
