@@ -1,35 +1,21 @@
-# ベースイメージを指定
-FROM php:8.1-fpm
+# richarvey/nginx-php-fpmをベースとする
+FROM richarvey/nginx-php-fpm:2.1.2
 
-# コンテナ内の作業ディレクトリを指定
-WORKDIR /app
-
-# 必要なパッケージのインストール
-RUN apt-get update && \
-    apt-get install -y \
-    zip \
-    unzip \
-    curl \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath opcache
-
-# Composerのインストール
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Laravelの依存パッケージをインストール
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader
-
-# アプリケーションのファイルをコンテナ内にコピー
 COPY . .
 
-# キャッシュのクリアとアプリケーションキーの生成
-RUN composer dump-autoload --no-scripts --optimize && \
-    php artisan optimize
+# Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-# ポートのエクスポートは不要です（Renderが自動的に設定します）
+# Laravel config
+ENV APP_ENV production
+ENV APP_DEBUG false
+ENV LOG_CHANNEL stderr
 
-# コンテナ起動時にPHP-FPMを起動
-CMD ["php-fpm"]
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
+
+CMD ["/start.sh"]
