@@ -1,25 +1,35 @@
-FROM node:16-slim as node-builder
+# ベースイメージを指定
+FROM php:8.1-fpm
 
-COPY . ./app
+# コンテナ内の作業ディレクトリを指定
+WORKDIR /app
 
+# 必要なパッケージのインストール
+RUN apt-get update && \
+    apt-get install -y \
+    zip \
+    unzip \
+    curl \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath opcache
 
-FROM php:8.1-apache
+# Composerのインストール
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN apt-get update && apt-get install -y \
-  zip \
-  unzip \
-  git
+# Laravelの依存パッケージをインストール
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader
 
-RUN docker-php-ext-install -j "$(nproc)" opcache && docker-php-ext-enable opcache
+# アプリケーションのファイルをコンテナ内にコピー
+COPY . .
 
-RUN sed -i 's/80/8080/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
-RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+# キャッシュのクリアとアプリケーションキーの生成
+RUN composer dump-autoload --no-scripts --optimize && \
+    php artisan optimize
 
-COPY --from=composer:2.0 /usr/bin/composer /usr/bin/composer
+# ポートのエクスポートは不要です（Renderが自動的に設定します）
 
-WORKDIR /var/www/html
-COPY . ./
-COPY --from=node-builder /app/public ./public
-RUN composer install
-RUN chown -Rf www-data:www-data ./
+# コンテナ起動時にPHP-FPMを起動
+CMD ["php-fpm"]
