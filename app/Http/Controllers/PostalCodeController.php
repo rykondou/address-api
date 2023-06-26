@@ -71,8 +71,8 @@ class PostalCodeController extends Controller
                 'kana1' => $value->kana1,
                 'kana2' => $value->kana2,
                 'kana3' => $value->kana3,
-                'prefcode' => $value->prefCode,
-                'postalcode' => $value->postalCode,
+                'prefcode' => $value->prefcode,
+                'postalcode' => $value->postalcode,
             ];
             $result[$key] = $address;
         };
