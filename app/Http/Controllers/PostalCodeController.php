@@ -10,7 +10,7 @@ class PostalCodeController extends Controller
     public function search(Request $request)
     {
         //リクエストからpostalCodeというkeyでvalueを受け取る
-        $code = str_replace("-", "", $request->postalCode);
+        $code = str_replace("-", "", $request->postalcode);
         //$postalCodeが空の場合
         if (0 === mb_strlen($code)) {
             return response()->json(
@@ -37,7 +37,7 @@ class PostalCodeController extends Controller
         }
         //DB接続用try-catch
         try {
-            $addresses = AddressData::where('postalCode', $code)->get();
+            $addresses = AddressData::where('postalcode', $code)->get();
         } catch (\Exception) {
             return response()->json(
                 [
@@ -71,8 +71,8 @@ class PostalCodeController extends Controller
                 'kana1' => $value->kana1,
                 'kana2' => $value->kana2,
                 'kana3' => $value->kana3,
-                'prefCode' => $value->prefCode,
-                'postalCode' => $value->postalCode,
+                'prefcode' => $value->prefCode,
+                'postalcode' => $value->postalCode,
             ];
             $result[$key] = $address;
         };
